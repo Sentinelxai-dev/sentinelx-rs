@@ -99,12 +99,11 @@ pub struct Receipt {
     pub summary: String,         // human-readable decision
     pub constraint: Option<String>,   // matched invariant name
     pub constraint_pack: String, // action evaluated
-    pub violation_code: Option<String>, // e.g. "INV-046"
+    pub violation_code: Option<String>, // e.g. "EXAMPLE-001"
     pub violations: Vec<Violation>,    // all matched invariants
     pub trace_id: String,        // unique per evaluation
     pub request_hash: String,    // sha256 of the request
     pub receipt_hash: String,    // sha256 sealed receipt
-    pub inv_version: String,     // invariant catalog date
     pub latency_ms: u64,         // enforcement latency
 }
 ```
