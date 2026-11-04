@@ -2,11 +2,11 @@
 name = "sentinelx"
 version = "0.1.1"
 edition = "2021"
-description = "Pre-execution enforcement at the commit boundary"
+description = "Pre-execution action checks at the commit boundary"
 license = "Apache-2.0"
 repository = "https://github.com/xinfra-ai/sentinelx-rs"
 homepage = "https://sentinelx.ai"
-keywords = ["enforcement", "ai-safety", "agents", "scada"]
+keywords = ["commit", "ai-safety", "agents", "scada"]
 categories = ["api-bindings", "web-programming"]
 
 [dependencies]

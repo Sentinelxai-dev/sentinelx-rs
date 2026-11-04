@@ -1,5 +1,5 @@
 //! SentinelX Rust SDK
-//! Pre-execution enforcement at the commit boundary.
+//! Pre-execution action checks at the commit boundary.
 //! <https://sentinelx.ai>
 
 use serde::{Deserialize, Serialize};
@@ -9,7 +9,7 @@ use thiserror::Error;
 const DEFAULT_BASE_URL: &str = "https://enforce.sentinelx.ai";
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-/// A single invariant violation.
+/// A single violation.
 #[derive(Debug, Clone, Deserialize)]
 pub struct Violation {
     pub primitive: Option<String>,
@@ -18,7 +18,7 @@ pub struct Violation {
     pub message: String,
 }
 
-/// The enforcement receipt returned on every decision.
+/// The receipt returned on every decision.
 #[derive(Debug, Clone, Deserialize)]
 pub struct Receipt {
     pub verdict: String,
@@ -54,7 +54,7 @@ impl SentinelXError {
     }
 }
 
-/// Wrapper for INADMISSIBLE results — contains the full receipt.
+/// Wrapper for INADMISSIBLE results; contains the full receipt.
 #[derive(Debug)]
 pub struct AdmissibilityError {
     pub receipt: Receipt,
@@ -80,7 +80,7 @@ struct EnforceRequest<'a> {
     context: &'a HashMap<String, serde_json::Value>,
 }
 
-/// SentinelX enforcement client.
+/// SentinelX client.
 pub struct SentinelX {
     api_key: String,
     base_url: String,
@@ -157,7 +157,7 @@ mod tests {
 
     #[test]
     fn deserializes_receipt_with_null_fields() {
-        let json = r#"{"verdict":"INADMISSIBLE","summary":"s","constraint":null,"constraint_pack":"test","violation_code":null,"violations":[{"primitive":null,"code":"INV-000","constraint":"UNKNOWN_INVARIANT","message":"m"}],"mode":"observe","envelope_class":"test","trace_id":"t","request_hash":"h","receipt_hash":"r","inv_version":"v","latency_ms":1}"#;
+        let json = r#"{"verdict":"INADMISSIBLE","summary":"s","constraint":null,"constraint_pack":"test","violation_code":null,"violations":[{"primitive":null,"code":"EXAMPLE-001","constraint":"EXAMPLE_REASON","message":"m"}],"mode":"observe","envelope_class":"test","trace_id":"t","request_hash":"h","receipt_hash":"r","inv_version":"v","latency_ms":1}"#;
         let r: Receipt = serde_json::from_str(json).unwrap();
         assert!(r.violations[0].primitive.is_none());
         assert!(r.constraint.is_none());

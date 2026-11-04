@@ -1,8 +1,8 @@
 # sentinelx
 
-Whether it's an AI agent, a bank transfer, or a power grid — execution is permanent.
+Whether it's an AI agent, a bank transfer, or a power grid, execution is permanent.
 
-`sentinelx` enforces at the commit boundary. Before the action executes. Server-side. Unbypassable. Cryptographic receipt on every decision.
+`sentinelx` checks actions at the commit boundary, before they execute. When placed in the commit path, decisions are made server-side and every decision returns a signed receipt.
 
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![crates.io](https://img.shields.io/crates/v/sentinelx)](https://crates.io/crates/sentinelx)
@@ -49,7 +49,7 @@ fn main() {
                 println!("Constraint: {:?}", receipt.constraint);
                 println!("Violations: {}", receipt.violations.len());
                 println!("Receipt hash: {}", receipt.receipt_hash);
-                // Action never executed. Receipt sealed.
+                // Action not committed (when placed in the commit path). Receipt returned.
             }
         }
     }
@@ -73,7 +73,7 @@ let receipt = sx.enforce("scada.setpoint.change", &ctx)?;
 println!("ADMISSIBLE | Receipt: {}", receipt.receipt_hash);
 ```
 
-## Observe Mode — Never Errors on INADMISSIBLE
+## Observe Mode: never errors on INADMISSIBLE
 
 ```rust
 // Always returns receipt. Never errors on INADMISSIBLE.
@@ -84,12 +84,12 @@ println!("{}", receipt.verdict); // "ADMISSIBLE" or "INADMISSIBLE"
 
 ## How It Works
 
-SentinelX sits at the commit boundary between your system and execution. Before any irreversible action fires, the enforcement engine evaluates it against invariant constraints and returns a deterministic verdict with a provenance receipt.
+SentinelX sits at the commit boundary between your system and execution. Before an irreversible action is committed, the service evaluates it and returns a verdict with a receipt.
 
-- **ADMISSIBLE** → receipt returned, action may proceed
-- **INADMISSIBLE** → `SentinelXError::Inadmissible` returned, nothing executes, receipt sealed
+- **ADMISSIBLE**: receipt returned, action may proceed
+- **INADMISSIBLE**: `SentinelXError::Inadmissible` returned; when placed in the commit path, the action is not committed. Receipt returned.
 
-The enforcement decision is made server-side. It cannot be bypassed client-side.
+The commit decision is made server-side, not in the client library.
 
 ## Receipt Shape
 
@@ -97,15 +97,14 @@ The enforcement decision is made server-side. It cannot be bypassed client-side.
 pub struct Receipt {
     pub verdict: String,         // "ADMISSIBLE" or "INADMISSIBLE"
     pub summary: String,         // human-readable decision
-    pub constraint: Option<String>,   // matched invariant name
+    pub constraint: Option<String>,   // reason identifier
     pub constraint_pack: String, // action evaluated
-    pub violation_code: Option<String>, // e.g. "INV-046"
-    pub violations: Vec<Violation>,    // all matched invariants
+    pub violation_code: Option<String>, // e.g. "EXAMPLE-001"
+    pub violations: Vec<Violation>,    // violation details
     pub trace_id: String,        // unique per evaluation
     pub request_hash: String,    // sha256 of the request
-    pub receipt_hash: String,    // sha256 sealed receipt
-    pub inv_version: String,     // invariant catalog date
-    pub latency_ms: u64,         // enforcement latency
+    pub receipt_hash: String,    // receipt hash
+    pub latency_ms: u64,         // decision latency
 }
 ```
 
@@ -140,3 +139,5 @@ Or visit [sentinelx.ai](https://sentinelx.ai).
 ## License
 
 Apache-2.0
+
+Patent pending. SentinelXAI, Inc.
